@@ -1,6 +1,18 @@
 # Changelog
 
 
+<a name="v1.0.1"></a>
+## [v1.0.1](https://github.com/PlatformStackPulse/Terraform-module-base-template/compare/v1.0.0...v1.0.1) (2026-05-26)
+
+### Bug Fixes
+
+- **ci:** change CodeQL language from python to actions ([b6d7df0](https://github.com/PlatformStackPulse/Terraform-module-base-template/commit/b6d7df00e5c66f0264014fd119e7dda9405b441f))
+
+### Documentation
+
+- **changelog:** update CHANGELOG.md [skip ci] ([3263271](https://github.com/PlatformStackPulse/Terraform-module-base-template/commit/3263271c89035e1ee0ec119fd15ab222dacd3ca2))
+
+
 <a name="v1.0.0"></a>
 ## v1.0.0 (2026-05-26)
 
