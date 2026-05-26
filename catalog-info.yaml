@@ -1,23 +1,26 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{ values.name | default("terraform-aws-CHANGEME") }}
-  description: ${{ values.description | default("Terraform module for CHANGEME") }}
+  name: tf-atom-s3-bucket-aws
+  title: "Terraform Atom: S3 Bucket"
+  description: "Single-resource Terraform atom for AWS S3 bucket creation with tf-label context propagation."
   annotations:
-    github.com/project-slug: PlatformStackPulse/${{ values.name | default("terraform-aws-CHANGEME") }}
+    github.com/project-slug: PlatformStackPulse/tf-atom-s3-bucket-aws
     backstage.io/techdocs-ref: dir:.
   tags:
     - terraform
     - aws
+    - s3
     - infrastructure
+    - atom
   links:
-    - url: https://github.com/PlatformStackPulse/${{ values.name | default("terraform-aws-CHANGEME") }}
+    - url: https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws
       title: GitHub Repository
       icon: github
 spec:
   type: terraform-module
   lifecycle: production
-  owner: ${{ values.owner | default("platform-team") }}
-  system: ${{ values.system | default("infrastructure") }}
+  owner: platform-team
+  system: infrastructure
   dependsOn:
-    - resource: terraform-module:PlatformStackPulse/tf-label
+    - resource:default/tf-label

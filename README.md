@@ -1,185 +1,48 @@
-# Terraform Module Template
+# tf-atom-s3-bucket-aws
 
-[![CI](https://github.com/PlatformStackPulse/Terraform-module-base-template/actions/workflows/ci.yml/badge.svg)](https://github.com/PlatformStackPulse/Terraform-module-base-template/actions/workflows/ci.yml)
-[![Release](https://github.com/PlatformStackPulse/Terraform-module-base-template/actions/workflows/release.yml/badge.svg)](https://github.com/PlatformStackPulse/Terraform-module-base-template/actions/workflows/release.yml)
+[![CI](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/ci.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/ci.yml)
+[![Release](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/release.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/release.yml)
+[![CodeQL](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml)
+[![Changelog](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml)
 
-A production-ready template for creating Terraform modules following the **one module per repository** best practice, with built-in CI/CD, security scanning, testing, documentation generation, and publishing to public registries.
+A single-resource Terraform atom module that creates an AWS S3 bucket with [tf-label](https://github.com/PlatformStackPulse/tf-label) context propagation.
 
-## Features
-
-- **One Module Per Repo** — Module lives at the root; no nested `modules/` directory
-- **Registry Publishing** — Auto-publish to Terraform Registry, Artifactory, or GitLab on release
-- **Native Terraform Testing** — `terraform test` with mock providers (no external tools)
-- **Security Scanning** — Trivy IaC scanning for HIGH/CRITICAL vulnerabilities
-- **Linting** — TFLint with AWS ruleset (preset "all")
-- **Auto Documentation** — terraform-docs generates README sections on every commit
-- **GitHub Actions CI/CD** — Workflows for the full module lifecycle
-- **Pre-Commit Hooks** — Format, validate, lint, docs, and security on every commit
-- **Conventional Commits** — Enforced commit message format
-- **Semantic Versioning** — Automated version management and releases
-- **DevContainer** — VS Code remote development ready
-
-## Quick Start
-
-### Create a New Module
-
-```bash
-# Create repo from template (name MUST follow: terraform-<PROVIDER>-<NAME>)
-gh repo create PlatformStackPulse/terraform-aws-my-module --template PlatformStackPulse/Terraform-module-base-template --public
-
-# Clone
-git clone git@github.com:PlatformStackPulse/terraform-aws-my-module.git
-cd terraform-aws-my-module
-
-# Install tools and hooks
-make dev-setup
-make hooks
-
-# Run all checks
-make all
-```
-
-### Customise the Template
-
-1. Replace the example S3 resources in `main.tf` with your actual resources
-2. Update `variables.tf`, `outputs.tf`, and `versions.tf`
-3. Write tests in `tests/unit/main_test.tftest.hcl`
-4. Update `examples/complete/` with real usage
-5. Update `.github/CODEOWNERS`
-6. Update this `README.md`
-
-See [TEMPLATE_GUIDE.md](TEMPLATE_GUIDE.md) for detailed instructions.
+> **Atom Pattern:** This module creates only the S3 bucket resource. Security controls (encryption, public access block, logging) are separate atoms composed at the molecule level.
 
 ## Usage
 
-### From GitHub
-
 ```hcl
-module "this" {
-  source = "github.com/PlatformStackPulse/terraform-aws-my-module?ref=v1.0.0"
+module "s3_bucket" {
+  source = "github.com/PlatformStackPulse/tf-atom-s3-bucket-aws?ref=v1.0.0"
 
-  name        = "my-resource"
-  environment = "dev"
   namespace   = "myorg"
+  environment = "production"
+  name        = "app-data"
 
-  tags = {
-    Project = "example"
-    Owner   = "platform-engineering"
-  }
+  force_destroy = false
 }
 ```
 
-### From Terraform Registry
+## Related Atoms
 
-```hcl
-module "this" {
-  source  = "PlatformStackPulse/my-module/aws"
-  version = "~> 1.0"
-
-  name        = "my-resource"
-  environment = "dev"
-  namespace   = "myorg"
-
-  tags = {
-    Project = "example"
-    Owner   = "platform-engineering"
-  }
-}
-```
-
-## Module Structure
-
-```
-├── main.tf           # Primary resource definitions
-├── variables.tf      # Input variables
-├── outputs.tf        # Output values
-├── versions.tf       # Terraform and provider version constraints
-├── locals.tf         # Local values and naming conventions
-├── data.tf           # Data sources
-├── examples/         # Usage examples for consumers
-│   └── complete/     # Full-featured example
-├── tests/            # Terraform native tests
-│   ├── unit/         # Unit tests with mock providers
-│   └── integration/  # Integration tests (real AWS)
-├── .github/          # GitHub Actions + templates
-├── scripts/          # Automation scripts
-└── Makefile          # Build automation
-```
-
-## Make Targets
-
-```
-make help              Show all targets
-make init              Initialize the module
-make fmt               Format all Terraform files
-make fmt-check         Check formatting (CI mode)
-make validate          Validate the module
-make lint              Run TFLint
-make test              Run all tests
-make test-unit         Run unit tests only
-make test-integration  Run integration tests
-make security          Run Trivy security scan
-make docs              Generate terraform-docs
-make clean             Remove .terraform dirs
-make all               Run all checks
-make dev-setup         Install development tools
-make hooks             Install pre-commit hooks
-make changelog         Regenerate CHANGELOG.md
-make version           Show current version
-make release           Create version tag (BUMP=patch|minor|major)
-```
-
-## Publishing
-
-### Terraform Registry (Public)
-
-The [Terraform Registry](https://registry.terraform.io) automatically publishes new versions when you create a GitHub Release:
-
-1. **Name your repo** following the convention: `terraform-<PROVIDER>-<NAME>` (e.g., `terraform-aws-vpc`)
-2. **Connect** at [registry.terraform.io/github/create](https://registry.terraform.io/github/create)
-3. **Tag and release** — every semver tag (`v1.0.0`) is auto-published
-
-### Terraform Cloud / Enterprise (Private)
-
-1. Connect your VCS provider in TFC/TFE settings
-2. Create a Module in the private registry pointing to this repo
-3. Semver tags trigger automatic version publication
-
-### JFrog Artifactory
-
-Set these repository variables/secrets in GitHub:
-- `ARTIFACTORY_ENABLED` = `true` (variable)
-- `ARTIFACTORY_URL` — e.g., `https://myorg.jfrog.io/artifactory` (variable)
-- `ARTIFACTORY_REPO` — e.g., `terraform-modules` (variable)
-- `ARTIFACTORY_TOKEN` (secret)
-
-### GitLab Terraform Registry
-
-Uncomment the `publish-gitlab` job in `.github/workflows/release.yml` and set:
-- `GITLAB_TOKEN` (secret)
-- `GITLAB_PROJECT_ID` (variable)
+| Atom | Purpose |
+|------|---------|
+| `tf-atom-s3-bucket-public-access-block-aws` | Block public access |
+| `tf-atom-s3-bucket-encryption-aws` | Server-side encryption (CMK) |
+| `tf-atom-s3-bucket-versioning-aws` | Object versioning |
+| `tf-atom-s3-bucket-logging-aws` | Access logging |
+| `tf-atom-s3-bucket-lifecycle-aws` | Lifecycle rules |
 
 ## CI/CD Workflows
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `ci.yml` | Push/PR to main | Format, validate, lint, test, security |
-| `release.yml` | Tag v*.*.* | Create GitHub Release + publish to registries |
+| `auto-release.yml` | CI passes on main | Auto-tag and trigger release |
+| `release.yml` | Tag `v*.*.*` | Create GitHub Release + archive |
 | `codeql.yml` | Weekly + push main | SAST security analysis |
-| `dependencies.yml` | Weekly | Check for provider updates |
 | `changelog.yml` | Push main | Auto-update CHANGELOG.md |
-| `version-bump.yml` | Manual | Bump patch/minor/major version |
-
-## Pre-Commit Hooks
-
-Installed via `make hooks`. Runs on every commit:
-
-- `terraform_fmt` — Format check
-- `terraform_validate` — Syntax validation
-- `terraform_tflint` — Linting with AWS rules
-- `terraform_docs` — Auto-generate documentation
-- `terraform_trivy` — Security scanning (HIGH/CRITICAL)
-- `gitlint` — Conventional commit message validation
+| `dependencies.yml` | Weekly | Check for provider updates |
 
 ## Module Documentation
 
@@ -188,12 +51,14 @@ Installed via `make hooks`. Runs on every commit:
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.11.3 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0.0 |
 
 ### Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0.0 |
 
 ### Modules
 
@@ -203,7 +68,9 @@ No providers.
 
 ### Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [aws_s3_bucket.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 
 ### Inputs
 
@@ -215,6 +82,7 @@ No resources.
 | <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br/>Map of maps. Keys are names of descriptors. Values are maps of the form<br/>`{<br/>   format = string<br/>   labels = list(string)<br/>}`<br/>`format` is a Terraform format string to be passed to the `format()` function.<br/>`labels` is a list of labels, in order, to pass to `format()` function.<br/>Label values will be normalized before being passed to `format()` so they will be<br/>identical to how they appear in `id`.<br/>Default is `{}` (`descriptors` output will be empty). | <pre>map(object({<br/>    format = string<br/>    labels = list(string)<br/>  }))</pre> | `{}` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources. | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT'. | `string` | `null` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Allow Terraform to destroy non-empty bucket | `bool` | `false` | no |
 | <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br/>Set to `0` for unlimited length.<br/>Set to `null` to keep the existing setting, which defaults to `0`.<br/>Does not affect `id_full`. | `number` | `null` | no |
 | <a name="input_label_key_case"></a> [label\_key\_case](#input\_label\_key\_case) | Controls the letter case of the `tags` keys (label names) for tags generated by this module.<br/>Does not affect keys of tags passed in via the `tags` input.<br/>Possible values: `lower`, `title`, `upper`.<br/>Default value: `title`. | `string` | `null` | no |
 | <a name="input_label_order"></a> [label\_order](#input\_label\_order) | The order in which the labels (ID elements) appear in the `id`.<br/>Defaults to ["namespace", "environment", "stage", "name", "attributes"].<br/>You can omit any of the 6 labels ("tenant" is the 6th), but at least one must be present. | `list(string)` | `null` | no |
@@ -231,27 +99,16 @@ No resources.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_bucket_arn"></a> [bucket\_arn](#output\_bucket\_arn) | ARN of the bucket |
+| <a name="output_bucket_domain_name"></a> [bucket\_domain\_name](#output\_bucket\_domain\_name) | Domain name of the bucket |
+| <a name="output_bucket_id"></a> [bucket\_id](#output\_bucket\_id) | Name of the bucket |
+| <a name="output_bucket_regional_domain_name"></a> [bucket\_regional\_domain\_name](#output\_bucket\_regional\_domain\_name) | Regional domain name of the bucket |
 | <a name="output_enabled"></a> [enabled](#output\_enabled) | Whether the module is enabled. |
 <!-- END_TF_DOCS -->
-
-## Learning Materials
-
-| Document | Description |
-|----------|-------------|
-| [docs/TERRAFORM_FLAGS.md](docs/TERRAFORM_FLAGS.md) | Terraform CLI flags reference (`-refresh`, `-upgrade`, etc.) |
-| [docs/TFENV.md](docs/TFENV.md) | tfenv version manager guide |
-| [docs/MAKEFILE_ENV.md](docs/MAKEFILE_ENV.md) | Makefile targets and `.env` configuration |
-| [TEMPLATE_GUIDE.md](TEMPLATE_GUIDE.md) | Step-by-step guide to customise this template |
-| [WORKFLOW.md](WORKFLOW.md) | Branching strategy and CI/CD pipeline |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Development workflow and guidelines |
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development workflow and guidelines.
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for vulnerability reporting.
 
 ## License
 
