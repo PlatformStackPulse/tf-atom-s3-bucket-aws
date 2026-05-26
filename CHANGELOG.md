@@ -1,6 +1,18 @@
 # Changelog
 
 
+<a name="v1.0.3"></a>
+## [v1.0.3](https://github.com/PlatformStackPulse/Terraform-module-base-template/compare/v1.0.2...v1.0.3) (2026-05-26)
+
+### Bug Fixes
+
+- **docs:** update Release badge to auto-release.yml ([8efe5f7](https://github.com/PlatformStackPulse/Terraform-module-base-template/commit/8efe5f75fdfe116eb13c608c24d884f56607b0bc))
+
+### Documentation
+
+- **changelog:** update CHANGELOG.md [skip ci] ([0344f17](https://github.com/PlatformStackPulse/Terraform-module-base-template/commit/0344f1781f291b7634a5cd285e77be8fc59e31ce))
+
+
 <a name="v1.0.2"></a>
 ## [v1.0.2](https://github.com/PlatformStackPulse/Terraform-module-base-template/compare/v1.0.1...v1.0.2) (2026-05-26)
 
