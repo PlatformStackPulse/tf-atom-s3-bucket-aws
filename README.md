@@ -1,7 +1,7 @@
 # tf-atom-s3-bucket-aws
 
 [![CI](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/ci.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/ci.yml)
-[![Release](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/release.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/release.yml)
+[![Release](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/auto-release.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/auto-release.yml)
 [![CodeQL](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml)
 [![Changelog](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml)
 
