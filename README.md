@@ -4,10 +4,59 @@
 [![Release](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/auto-release.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/auto-release.yml)
 [![CodeQL](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/codeql.yml)
 [![Changelog](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml/badge.svg)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/actions/workflows/changelog.yml)
+[![Latest Release](https://img.shields.io/github/v/release/PlatformStackPulse/tf-atom-s3-bucket-aws?sort=semver)](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-aws/releases)
+![Terraform](https://img.shields.io/badge/terraform-%3E%3D1.6.0-blueviolet?logo=terraform)
+![License](https://img.shields.io/github/license/PlatformStackPulse/tf-atom-s3-bucket-aws)
 
-A single-resource Terraform atom module that creates an AWS S3 bucket with [tf-label](https://github.com/PlatformStackPulse/tf-label) context propagation.
+---
 
-> **Atom Pattern:** This module creates only the S3 bucket resource. Security controls (encryption, public access block, logging) are separate atoms composed at the molecule level.
+## Purpose
+
+Creates a single AWS S3 bucket with consistent naming and tagging via [tf-label](https://github.com/PlatformStackPulse/tf-label) context propagation. This is the foundational storage atom — all S3 security, lifecycle, and configuration concerns are handled by companion atoms composed at the molecule layer.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  Molecule Layer                          │
+│  (tf-molecule-s3-secure-bucket-aws)                     │
+│                                                         │
+│  ┌───────────────┐  ┌──────────────────┐               │
+│  │ THIS MODULE   │  │ s3-bucket-       │               │
+│  │ s3-bucket     │──│ public-access-   │               │
+│  │ (creates the  │  │ block            │               │
+│  │  bucket)      │  └──────────────────┘               │
+│  └───────┬───────┘  ┌──────────────────┐               │
+│          │          │ s3-bucket-       │               │
+│          ├──────────│ encryption       │               │
+│          │          └──────────────────┘               │
+│          │          ┌──────────────────┐               │
+│          └──────────│ s3-bucket-       │               │
+│                     │ versioning       │               │
+│                     └──────────────────┘               │
+└─────────────────────────────────────────────────────────┘
+```
+
+## Scope
+
+| In Scope | Out of Scope |
+|----------|--------------|
+| `aws_s3_bucket` resource creation | Bucket policy (→ `tf-atom-s3-bucket-policy-aws`) |
+| Bucket naming via `module.this.id` | Encryption (→ `tf-atom-s3-bucket-encryption-aws`) |
+| Tagging via `module.this.tags` | Public access block (→ `tf-atom-s3-bucket-public-access-block-aws`) |
+| `force_destroy` configuration | Versioning (→ `tf-atom-s3-bucket-versioning-aws`) |
+| Conditional creation (`enabled`) | CORS (→ `tf-atom-s3-bucket-cors-configuration-aws`) |
+| | Lifecycle rules (→ `tf-atom-s3-bucket-lifecycle-configuration-aws`) |
+| | Website config (→ `tf-atom-s3-bucket-website-configuration-aws`) |
+
+## Features
+
+- **Single-resource atom** — one `aws_s3_bucket`, no side effects
+- **Context propagation** — inherits namespace, environment, stage, name from parent via `context`
+- **Conditional creation** — `enabled = false` creates zero resources
+- **Composable** — designed to be wired with companion atoms at molecule level
+- **Tested** — unit tests for enabled, disabled, and force_destroy scenarios
+- **Secure by default** — Trivy-scanned; security controls delegated to dedicated atoms
 
 ## Usage
 
@@ -23,23 +72,48 @@ module "s3_bucket" {
 }
 ```
 
+### Compose with companion atoms (molecule pattern)
+
+```hcl
+module "bucket" {
+  source  = "github.com/PlatformStackPulse/tf-atom-s3-bucket-aws?ref=v1.0.0"
+  context = module.this.context
+  name    = "assets"
+}
+
+module "bucket_encryption" {
+  source    = "github.com/PlatformStackPulse/tf-atom-s3-bucket-encryption-aws?ref=v1.0.0"
+  context   = module.this.context
+  bucket_id = module.bucket.bucket_id
+}
+
+module "bucket_public_access" {
+  source    = "github.com/PlatformStackPulse/tf-atom-s3-bucket-public-access-block-aws?ref=v1.0.0"
+  context   = module.this.context
+  bucket_id = module.bucket.bucket_id
+}
+```
+
 ## Related Atoms
 
 | Atom | Purpose |
 |------|---------|
-| `tf-atom-s3-bucket-public-access-block-aws` | Block public access |
-| `tf-atom-s3-bucket-encryption-aws` | Server-side encryption (CMK) |
-| `tf-atom-s3-bucket-versioning-aws` | Object versioning |
-| `tf-atom-s3-bucket-logging-aws` | Access logging |
-| `tf-atom-s3-bucket-lifecycle-aws` | Lifecycle rules |
+| [`tf-atom-s3-bucket-policy-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-policy-aws) | Bucket policy |
+| [`tf-atom-s3-bucket-public-access-block-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-public-access-block-aws) | Block public access |
+| [`tf-atom-s3-bucket-encryption-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-encryption-aws) | Server-side encryption |
+| [`tf-atom-s3-bucket-versioning-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-versioning-aws) | Object versioning |
+| [`tf-atom-s3-bucket-cors-configuration-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-cors-configuration-aws) | CORS rules |
+| [`tf-atom-s3-bucket-lifecycle-configuration-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-lifecycle-configuration-aws) | Lifecycle rules |
+| [`tf-atom-s3-bucket-website-configuration-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-website-configuration-aws) | Static website hosting |
+| [`tf-atom-s3-bucket-notification-aws`](https://github.com/PlatformStackPulse/tf-atom-s3-bucket-notification-aws) | Event notifications |
 
 ## CI/CD Workflows
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `ci.yml` | Push/PR to main | Format, validate, lint, test, security |
-| `auto-release.yml` | CI passes on main | Auto-tag and trigger release |
-| `release.yml` | Tag `v*.*.*` | Create GitHub Release + archive |
+| `ci.yml` | Push/PR to main, feature branches | Format, validate, lint, test, security |
+| `auto-release.yml` | CI passes on main | Semantic version tag + GitHub Release + artifacts |
+| `preview-release.yml` | CI passes on feature branch | Pre-release tag for testing |
 | `codeql.yml` | Weekly + push main | SAST security analysis |
 | `changelog.yml` | Push main | Auto-update CHANGELOG.md |
 | `dependencies.yml` | Weekly | Check for provider updates |
